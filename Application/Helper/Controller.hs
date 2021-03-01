@@ -61,12 +61,13 @@ pullRole =  case ?context of
 class MakeRole a where
     makeRole :: (Typeable a) => a -> Role a
     getRoleOrNothing :: (?context :: ControllerContext, Typeable a) => Proxy a -> Maybe (Role a)
-    --pushRoleToContext :: (?context :: ControllerContext, Typeable a) => Proxy a -> Maybe (Role a)
+--  possible methods for serializing and deserializing Role specific session data.
+--    pullSessionData :: (?context :: ControllerContext, Monad m) => Role a -> m a 
+--    pushSessionData :: (?context :: ControllerContext, Monad m) => Role a -> m a 
 
 instance MakeRole User where
     makeRole a = UserRole a
     getRoleOrNothing a = pullRole @User  
-    --pushRoleToContext = putContext (makeRole user) 
 
 instance MakeRole Admin where
     makeRole a = AdminRole  a
