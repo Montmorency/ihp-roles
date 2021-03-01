@@ -4,7 +4,6 @@ import IHP.ViewPrelude
 
 import Application.Helper.Controller (
                                       Role (..)
-                                    , RoleFamily
                                     , makeRole
                                     , getRoleOrNothing
                                     )

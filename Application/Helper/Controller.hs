@@ -51,14 +51,6 @@ data Role a where
 deriving instance (Eq a) => Eq (Role a)
 deriving instance (Show a) => Show (Role a)
 deriving instance (Typeable a) => Typeable (Role a)
---deriving instance Typeable (Role Admin)
---deriving instance Typeable (Role User)
---deriving instance Typeable User 
---deriving instance Typeable Admin 
-
-type family RoleFamily a where
-    RoleFamily User  = User
-    RoleFamily Admin = Admin
 
 
 pullRole :: forall a.(?context :: ControllerContext, Typeable a) => Maybe (Role a)
@@ -73,25 +65,13 @@ class MakeRole a where
 
 instance MakeRole User where
     makeRole a = UserRole a
-    getRoleOrNothing a = case pullRole @User of 
-                            Just (UserRole user)  -> Just (UserRole user) 
-                            Nothing -> Nothing
+    getRoleOrNothing a = pullRole @User  
     --pushRoleToContext = putContext (makeRole user) 
 
 instance MakeRole Admin where
     makeRole a = AdminRole  a
-    getRoleOrNothing a = case pullRole @Admin of
-                            Just (AdminRole admin)  -> Just (AdminRole admin) 
-                            Nothing -> Nothing
+    getRoleOrNothing a = pullRole @Admin 
 
--- How to get Role into session typeRep Role -> SessionFille
--- typeOf getSessionRoleRep
---sessionKey :: forall user. (KnownSymbol (ModelSupport.GetModelName user)) => Text
---sessionKey = "login." <> ModelSupport.getModelName @user
---Is there a way to go directly from a User to the UserRole data constructor
---based on String in the Session?
---sessionRoleKey :: Role a -> Text
---sessionRoleKey = showsTypeRep  $ typeRep
 initRoleAuthentication :: forall user.(
                                         ?context :: ControllerContext
                                       , ?modelContext:: ModelContext
@@ -126,6 +106,7 @@ initRoleAuthentication  = do
                                                       putStrLn "Found Nothing Admin Route"
                                                       pure ()  
         Nothing -> pure () 
+
 -- Role Helper Functions
 currentRoleOrNothing :: forall a.(?context :: ControllerContext, Typeable (Role a)) => (Maybe (Role a))
 currentRoleOrNothing = case unsafePerformIO (maybeFromContext @(Maybe (Role a))) of
@@ -140,3 +121,10 @@ redirectToLogin newSessionPath = unsafePerformIO $ do
     redirectToPath newSessionPath
     error "Unreachable"
 
+--deriving instance Typeable (Role Admin)
+--deriving instance Typeable (Role User)
+--deriving instance Typeable User 
+--deriving instance Typeable Admin 
+--type family RoleFamily a where
+--RoleFamily User  = User
+--RoleFamily Admin = Admin
